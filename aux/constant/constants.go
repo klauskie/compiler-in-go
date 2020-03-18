@@ -35,6 +35,7 @@ const (
 	D_SPACE
 	D_NEWLINE
 	D_TAB
+	S_ERROR
 )
 
 const (

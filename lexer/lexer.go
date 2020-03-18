@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"../aux"
 	"../aux/constant"
 	"bufio"
 	"log"
@@ -8,7 +9,7 @@ import (
 	"strings"
 )
 
-func GetTokens(filename string) TokenList {
+func GetTokens(filename string) (TokenList, aux.FoulError) {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -17,10 +18,15 @@ func GetTokens(filename string) TokenList {
 
 	tokenList := TokenList{[]Token{}}
 	scanner := bufio.NewScanner(file)
+	i := 1
 	for scanner.Scan() {
 		line := scanner.Bytes()
 		line = append(line, ' ')
-		getTokensInLine(line, &tokenList)
+		err := getTokensInLine(line, &tokenList)
+		if err {
+			return tokenList, aux.NewFoul(aux.UNKNOWN_TOKEN, i)
+		}
+		i++
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -28,10 +34,10 @@ func GetTokens(filename string) TokenList {
 	}
 
 	tokenList.Print()
-	return tokenList
+	return tokenList, nil
 }
 
-func getTokensInLine(line []byte, tokenList *TokenList) {
+func getTokensInLine(line []byte, tokenList *TokenList) bool {
 	var word []byte
 	y := 0
 
@@ -42,6 +48,9 @@ func getTokensInLine(line []byte, tokenList *TokenList) {
 		word = append(word, line[i])
 
 		if state >= 20 {
+			if state == constant.S_ERROR {
+				return true
+			}
 			// add word and state into slice
 			if state != constant.D_SPACE {
 				tokenList.Add(newToken(state, word[:len(word)-1]))
@@ -55,6 +64,8 @@ func getTokensInLine(line []byte, tokenList *TokenList) {
 			i -= 1
 		}
 	}
+
+	return false
 }
 
 func newToken(state uint8, word []byte) Token {
@@ -74,16 +85,16 @@ func newToken(state uint8, word []byte) Token {
 
 func getTransitionTable() [][]uint8 {
 	return [][]uint8{
-		{1, 2, constant.S_SUM, constant.S_SUBTRACT, 6, 7, 3, 4, 5, constant.S_SEMICOLON, constant.S_COMMA, constant.S_OPEN_PARENTHESIS, constant.S_CLOSE_PARENTHESIS, constant.S_OPEN_SQR_BRACKET, constant.S_CLOSE_SQR_BRACKET, constant.S_OPEN_CURLY_BRACKET, constant.S_CLOSE_CURLY_BRACKET, 8, constant.D_SPACE}, // S - 0 | A	B	SUM	SUBTRACT	F	G	D	D	E	SEMICOLON	COMA	OPEN_PARENTHESIS	CLOSE_PARENTHESIS	OPEN_SQUARE_BRACKET	CLOSE_SQUARE_BRACKET	OPEN_CURLY_BRACKET	CLOSE_CURLY_BRACKET	H	-
-		{1, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD}, 														// A - 1 |
+		{1, 2, constant.S_SUM, constant.S_SUBTRACT, 6, 7, 3, 4, 5, constant.S_SEMICOLON, constant.S_COMMA, constant.S_OPEN_PARENTHESIS, constant.S_CLOSE_PARENTHESIS, constant.S_OPEN_SQR_BRACKET, constant.S_CLOSE_SQR_BRACKET, constant.S_OPEN_CURLY_BRACKET, constant.S_CLOSE_CURLY_BRACKET, 8, constant.D_SPACE, constant.S_ERROR}, // S - 0 | A	B	SUM	SUBTRACT	F	G	D	D	E	SEMICOLON	COMA	OPEN_PARENTHESIS	CLOSE_PARENTHESIS	OPEN_SQUARE_BRACKET	CLOSE_SQUARE_BRACKET	OPEN_CURLY_BRACKET	CLOSE_CURLY_BRACKET	H	-
+		{1, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.S_ERROR}, 														// A - 1 |
 		{constant.H_NUMBER, 2, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER}, 					// B - 2 |
-		{constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS_EQUAL, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS}, 							// C - 3 |
-		{constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE_EQUAL, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE}, 							// D - 4 |
-		{constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL}, 						// E - 5 |
-		{constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_CLOSE_COMMENT_BLOCK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK}, 			// F - 6 |
-		{constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_OPEN_COMMENT_BLOCK, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH}, 		// G - 7 |
-		{0, 0, 0, 0, 0, 0, 0, 0, constant.S_NOT_EQUAL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 								// H - 8 |
-		//		 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18
+		{constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS_EQUAL, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_ERROR}, 							// C - 3 |
+		{constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE_EQUAL, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_ERROR}, 							// D - 4 |
+		{constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_ERROR}, 						// E - 5 |
+		{constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_CLOSE_COMMENT_BLOCK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ERROR}, 			// F - 6 |
+		{constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_OPEN_COMMENT_BLOCK, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_ERROR}, 		// G - 7 |
+		{constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_NOT_EQUAL, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR}, 								// H - 8 |
+		//		 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
 	}
 }
 
@@ -149,6 +160,8 @@ func getIndexForChar(c byte) int {
 			x = 0
 		} else if isDigit(c) {
 			x = 1
+		} else {
+			x = 19
 		}
 		break
 	}

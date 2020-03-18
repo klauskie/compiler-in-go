@@ -1,4 +1,4 @@
 if(7!=4) {
 ][netaloquesea+-*/
 }
-else elsee/*
+else elsee

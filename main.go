@@ -1,9 +1,16 @@
 package main
 
-import "./lexer"
+import (
+	"./lexer"
+	"log"
+)
 
 func main() {
-	lexer.GetTokens("file.txt")
+	_, err := lexer.GetTokens("file.txt")
+	if err != nil {
+		//panic(err.ToString())
+		log.Fatal(err.ToString())
+	}
 }
 
 
