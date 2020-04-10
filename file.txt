@@ -1,4 +1,19 @@
+/*
+h(4=4);
+*/
+if (4==3 ) {}
+/*
+==
+>=
+<=
+
 if(7!=4) {
 ][netaloquesea+-*/
 }
-else elsee
+else elsee;
+
+int main() {
+    println(4*4);
+}
+
+4+4

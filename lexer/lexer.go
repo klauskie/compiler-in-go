@@ -59,8 +59,7 @@ func getTokensInLine(line []byte, tokenList *TokenList) bool {
 			word = word[:0]
 			y = 0
 		}
-
-		if state == constant.H_WORD || state == constant.H_NUMBER {
+		if isRecursiveToken(state) {
 			i -= 1
 		}
 	}
@@ -217,4 +216,18 @@ func isKeyword(word string) (uint8, bool) {
 	}
 
 	return id, isKeyword
+}
+
+func isRecursiveToken(state uint8) bool {
+	if
+		state == constant.H_WORD ||
+		state == constant.H_NUMBER ||
+		state == constant.S_ASTERISK ||
+		state == constant.S_FORWARD_SLASH ||
+		state == constant.S_LESS ||
+		state == constant.S_MORE ||
+		state == constant.S_EQUAL {
+		return true
+	}
+	return false
 }
