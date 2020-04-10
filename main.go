@@ -6,11 +6,13 @@ import (
 )
 
 func main() {
-	_, err := lexer.GetTokens("file.txt")
+	tokens, err := lexer.Run("file.txt")
 	if err != nil {
 		//panic(err.ToString())
 		log.Fatal(err.ToString())
 	}
+
+	tokens.Print()
 }
 
 

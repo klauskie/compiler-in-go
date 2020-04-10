@@ -3,6 +3,7 @@ package lexer
 import (
 	"../aux/constant"
 	"fmt"
+	"strings"
 )
 
 type Token struct {
@@ -12,6 +13,21 @@ type Token struct {
 
 type TokenList struct {
 	Elements []Token
+}
+
+func NewToken(state uint8, word []byte) Token {
+	var w string
+	if state == constant.H_WORD || state == constant.H_NUMBER {
+		w = strings.TrimSpace(string(word))
+	} else {
+		w = string(word[:0])
+	}
+
+	if state == constant.H_WORD {
+		state, _ = isKeyword(w)
+	}
+
+	return Token{state, w}
 }
 
 func (list *TokenList) Add(t Token) {
