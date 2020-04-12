@@ -117,12 +117,19 @@ func TestGetTokensInLine(t *testing.T) {
 		t.Errorf("getTokensInLine; Expected an IF token; got %s", getTypeToString(tl.Elements[3].Type))
 	}
 
+	line = "\n" + " "
+	tl2 := TokenList{[]Token{}}
+	err := getTokensInLine([]byte(line), &tl2)
+	if len(tl2.Elements) != 0 {
+		t.Errorf("getTokensInLine; Expected no tokens; got %d token(s)", len(tl2.Elements))
+	}
+
 	// Clean token list
 	tl.Elements = tl.Elements[:0]
 
 	// Error encounters
 	line = "if (2+2) $ then" + " "
-	err := getTokensInLine([]byte(line), &tl)
+	err = getTokensInLine([]byte(line), &tl)
 	if err != "$" {
 		t.Errorf("getTokensInLine; Expected UNKNOWN $ token; got %s", err)
 	}
