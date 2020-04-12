@@ -14,7 +14,12 @@ func Run(filename string) (TokenList, aux.FoulError) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	tokenList := TokenList{[]Token{}}
 	scanner := bufio.NewScanner(file)
@@ -23,7 +28,7 @@ func Run(filename string) (TokenList, aux.FoulError) {
 		line := scanner.Bytes()
 		line = append(line, ' ')
 
-		if err, tokenError := getTokensInLine(line, &tokenList); err {
+		if tokenError := getTokensInLine(line, &tokenList); len(tokenError) > 0 {
 			return tokenList, aux.NewFoul(aux.UNKNOWN_TOKEN, i, tokenError)
 		}
 	}
@@ -35,7 +40,7 @@ func Run(filename string) (TokenList, aux.FoulError) {
 	return tokenList, nil
 }
 
-func getTokensInLine(line []byte, tokenList *TokenList) (bool, string) {
+func getTokensInLine(line []byte, tokenList *TokenList) string {
 	var word []byte
 	y := 0
 
@@ -47,7 +52,7 @@ func getTokensInLine(line []byte, tokenList *TokenList) (bool, string) {
 
 		if state >= 20 {
 			if state == constant.S_ERROR {
-				return true, strings.TrimSpace(string(word))
+				return strings.TrimSpace(string(word))
 			}
 			// add word and state into slice
 			if state != constant.D_SPACE {
@@ -62,7 +67,7 @@ func getTokensInLine(line []byte, tokenList *TokenList) (bool, string) {
 		}
 	}
 
-	return false, ""
+	return ""
 }
 
 func getTransitionTable() [][]uint8 {

@@ -24,7 +24,11 @@ func NewToken(state uint8, word []byte) Token {
 	}
 
 	if state == constant.H_WORD {
-		state, _ = isKeyword(w)
+		tempState, isKey := isKeyword(w)
+		if isKey {
+			w = string(word[:0])
+		}
+		state = tempState
 	}
 
 	return Token{state, w}
@@ -36,13 +40,13 @@ func (list *TokenList) Add(t Token) {
 
 func (list *TokenList) Print() {
 	for i:= 0; i < len(list.Elements); i++ {
-		fmt.Printf("i: %d, t: %s, w: %s\n", i, list.Elements[i].getTypeToString(), list.Elements[i].Word )
+		fmt.Printf("i: %d, t: %s, w: %s\n", i, getTypeToString(list.Elements[i].Type), list.Elements[i].Word )
 	}
 }
 
-func (t *Token) getTypeToString() string {
+func getTypeToString(t uint8) string {
 	var stype string
-	switch t.Type {
+	switch t {
 	case constant.S_SUM:
 		stype = "+"
 		break
