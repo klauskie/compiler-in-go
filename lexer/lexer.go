@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func Run(filename string) (TokenList, aux.FoulError) {
+func Run(filename string) (*TokenList, aux.FoulError) {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -29,7 +29,7 @@ func Run(filename string) (TokenList, aux.FoulError) {
 		line = append(line, ' ')
 
 		if tokenError := getTokensInLine(line, &tokenList); len(tokenError) > 0 {
-			return tokenList, aux.NewFoul(aux.UNKNOWN_TOKEN, i, tokenError)
+			return &tokenList, aux.NewFoul(aux.UNKNOWN_TOKEN, i, tokenError)
 		}
 	}
 
@@ -37,7 +37,7 @@ func Run(filename string) (TokenList, aux.FoulError) {
 		log.Fatal(err)
 	}
 
-	return tokenList, nil
+	return &tokenList, nil
 }
 
 func getTokensInLine(line []byte, tokenList *TokenList) string {

@@ -2,17 +2,24 @@ package main
 
 import (
 	"./lexer"
+	"fmt"
 	"log"
 )
 
 func main() {
-	tokens, err := lexer.Run("file.txt")
+	tokenList, err := lexer.Run("file.txt")
 	if err != nil {
 		//panic(err.ToString())
 		log.Fatal(err.ToString())
 	}
 
-	tokens.Print()
+	symbolTable := lexer.NewSymbolTable()
+	symbolTable.Fill(tokenList)
+
+	fmt.Println("---- TOKEN LIST -----")
+	tokenList.Print()
+	fmt.Println("---- SYMBOL TABLE -----")
+	symbolTable.Print()
 }
 
 
