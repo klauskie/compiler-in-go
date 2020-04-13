@@ -11,41 +11,17 @@ type Symbol struct {
 	Word string
 }
 
-type SymbolTableNumbers struct {
-	index int
-	Elements []Symbol
+type SymbolTable struct {
+	Map map[string]Symbol
 }
 
-type SymbolTableStrings struct {
-	index int
-	Elements []Symbol
+func (table *SymbolTable) Insert(s Symbol) {
+	table.Map[s.Word] = s
 }
 
-type SymbolTable interface {
-	Add(symbol Symbol)
-}
-
-func (list *SymbolTableNumbers) Add(s Symbol) {
-	list.index += 1
-	s.ID = list.index
-	list.Elements = append(list.Elements, s)
-}
-
-func (list *SymbolTableStrings) Add(s Symbol) {
-	list.index += 1
-	s.ID = list.index
-	list.Elements = append(list.Elements, s)
-}
-
-func (list *SymbolTableNumbers) Print() {
-	for i:= 0; i < len(list.Elements); i++ {
-		fmt.Printf("i: %d| id: %d, t: %s, w: %s\n", i, list.Elements[i].ID, list.Elements[i].getTypeToString(), list.Elements[i].Word )
-	}
-}
-
-func (list *SymbolTableStrings) Print() {
-	for i:= 0; i < len(list.Elements); i++ {
-		fmt.Printf("i: %d| id: %d, t: %s, w: %s\n", i, list.Elements[i].ID, list.Elements[i].getTypeToString(), list.Elements[i].Word )
+func (table *SymbolTable) Print() {
+	for key, element := range table.Map {
+		fmt.Printf("Key: %s => Element: %s\n", key, element.getTypeToString())
 	}
 }
 

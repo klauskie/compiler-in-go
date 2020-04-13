@@ -19,9 +19,13 @@ func (list *TokenList) Add(t Token) {
 }
 
 func (list *TokenList) Print() {
-	for i:= 0; i < len(list.Elements); i++ {
-		fmt.Printf("i: %d, t: %s, w: %s\n", i, list.Elements[i].getTypeToString(), list.Elements[i].Word )
+	for i, token := range list.Elements {
+		fmt.Printf("i: %d, %s\n", i, token.ToString())
 	}
+}
+
+func (t *Token) ToString() string {
+	return fmt.Sprintf("Type: %s, Word: %s", t.getTypeToString(), t.Word)
 }
 
 func (t *Token) getTypeToString() string {
