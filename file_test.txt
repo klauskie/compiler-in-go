@@ -1,0 +1,5 @@
+int main() {
+    output[3*v]
+    input("hello world")
+}
+

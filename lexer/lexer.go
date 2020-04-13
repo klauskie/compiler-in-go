@@ -9,35 +9,38 @@ import (
 	"strings"
 )
 
-func GetTokens(filename string) (TokenList, aux.FoulError) {
+func Run(filename string) (TokenList, aux.FoulError) {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	tokenList := TokenList{[]Token{}}
 	scanner := bufio.NewScanner(file)
-	i := 1
-	for scanner.Scan() {
+
+	for i := 1; scanner.Scan(); i++ {
 		line := scanner.Bytes()
 		line = append(line, ' ')
-		err := getTokensInLine(line, &tokenList)
-		if err {
-			return tokenList, aux.NewFoul(aux.UNKNOWN_TOKEN, i)
+
+		if tokenError := getTokensInLine(line, &tokenList); len(tokenError) > 0 {
+			return tokenList, aux.NewFoul(aux.UNKNOWN_TOKEN, i, tokenError)
 		}
-		i++
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	tokenList.Print()
 	return tokenList, nil
 }
 
-func getTokensInLine(line []byte, tokenList *TokenList) bool {
+func getTokensInLine(line []byte, tokenList *TokenList) string {
 	var word []byte
 	y := 0
 
@@ -49,11 +52,11 @@ func getTokensInLine(line []byte, tokenList *TokenList) bool {
 
 		if state >= 20 {
 			if state == constant.S_ERROR {
-				return true
+				return strings.TrimSpace(string(word))
 			}
 			// add word and state into slice
 			if state != constant.D_SPACE {
-				tokenList.Add(newToken(state, word[:len(word)-1]))
+				tokenList.Add(NewToken(state, word[:len(word)-1]))
 			}
 			// clean word
 			word = word[:0]
@@ -64,22 +67,7 @@ func getTokensInLine(line []byte, tokenList *TokenList) bool {
 		}
 	}
 
-	return false
-}
-
-func newToken(state uint8, word []byte) Token {
-	var w string
-	if state == constant.H_WORD || state == constant.H_NUMBER {
-		w = strings.TrimSpace(string(word))
-	} else {
-		w = string(word[:0])
-	}
-
-	if state == constant.H_WORD {
-		state, _ = isKeyword(w)
-	}
-
-	return Token{state, w}
+	return ""
 }
 
 func getTransitionTable() [][]uint8 {

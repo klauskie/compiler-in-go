@@ -23,7 +23,7 @@ func NewFoul(t uint8, params ...interface{}) Foul {
 	var message string
 	switch t {
 	case UNKNOWN_TOKEN:
-		message = fmt.Sprintf("unknown token at line:  %d", params[0].(int))
+		message = fmt.Sprintf("unknown token [ %s ] at line:  %d", params[1].(string), params[0].(int))
 		break
 	default:
 		message = "error"
