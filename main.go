@@ -10,6 +10,7 @@ func main() {
 	tokenList, err := lexer.Run("file.txt")
 	if err != nil {
 		//panic(err.ToString())
+		tokenList.Print()
 		log.Fatal(err.ToString())
 	}
 

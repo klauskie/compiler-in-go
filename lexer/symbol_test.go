@@ -1,6 +1,8 @@
 package lexer
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestSymbolTable_Insert(t *testing.T) {
 	testSymbol := Symbol{
@@ -38,11 +40,11 @@ func TestSymbolTable_Insert(t *testing.T) {
 
 func TestSymbolTable_Fill(t *testing.T) {
 	symbolTable := NewSymbolTable()
-	tokenList, _ := Run("../file_test.txt")
+	tokens, _ := Run("../file_test.txt")
 
-	symbolTable.Fill(tokenList)
+	symbolTable.Fill(tokens)
 
 	if len(symbolTable.Map) != 3 {
-		t.Errorf("Insert(Symbol); Expected Map of length 3, got Map with length of %d", len(symbolTable.Map))
+		t.Errorf("Fill(tokenList); Expected Map of length 3, got Map with length of %d", len(symbolTable.Map))
 	}
 }

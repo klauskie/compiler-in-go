@@ -91,7 +91,8 @@ func TestGetTokensInLine(t *testing.T) {
 	line := "hello" + " "
 	tl := TokenList{[]Token{}}
 	tokenMock := Token{constant.H_WORD, "hello"}
-	getTokensInLine([]byte(line), &tl)
+	transitionTable := getTransitionTable()
+	getTokensInLine([]byte(line), &tl, transitionTable)
 	if tl.Elements[0] != tokenMock {
 		t.Errorf("getTokensInLine; Expected a token with type %d and word = %s; " +
 			"got type = %d and word = %s", tokenMock.Type, tokenMock.Word, tl.Elements[0].Type, tl.Elements[0].Word)
@@ -100,7 +101,7 @@ func TestGetTokensInLine(t *testing.T) {
 	tl.Elements = tl.Elements[:0]
 
 	line = "2+a if" + " "
-	getTokensInLine([]byte(line), &tl)
+	getTokensInLine([]byte(line), &tl, transitionTable)
 	if len(tl.Elements) != 4 {
 		t.Errorf("getTokensInLine; Expected 4 tokens; got %d", len(tl.Elements))
 	}
@@ -119,7 +120,7 @@ func TestGetTokensInLine(t *testing.T) {
 
 	line = "\n" + " "
 	tl2 := TokenList{[]Token{}}
-	err := getTokensInLine([]byte(line), &tl2)
+	err := getTokensInLine([]byte(line), &tl2, transitionTable)
 	if len(tl2.Elements) != 0 {
 		t.Errorf("getTokensInLine; Expected no tokens; got %d token(s)", len(tl2.Elements))
 	}
@@ -129,9 +130,25 @@ func TestGetTokensInLine(t *testing.T) {
 
 	// Error encounters
 	line = "if (2+2) $ then" + " "
-	err = getTokensInLine([]byte(line), &tl)
+	err = getTokensInLine([]byte(line), &tl, transitionTable)
 	if err != "$" {
 		t.Errorf("getTokensInLine; Expected UNKNOWN $ token; got %s", err)
+	}
+
+	// Comments
+	line = "/* %& UNKNOWN TOKEN-S **/" + " "
+	possibleFutureSize := 2
+	tl.Elements = tl.Elements[:0]
+	err = getTokensInLine([]byte(line), &tl, transitionTable)
+	if possibleFutureSize != len(tl.Elements) {
+		t.Errorf("getTokensInLine; Expected text to be ignored and 2 tokens detected; got %d token detected", len(tl.Elements))
+	}
+
+	line = "/* int main () {}" + " "
+	tl.Elements = tl.Elements[:0]
+	err = getTokensInLine([]byte(line), &tl, transitionTable)
+	if len(tl.Elements) != 1 {
+		t.Errorf("getTokensInLine; Expected all text to be ignerd and identify 1 token; got %d token detected", len(tl.Elements))
 	}
 
 }
