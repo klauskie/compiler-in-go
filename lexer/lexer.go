@@ -9,11 +9,11 @@ import (
 	"strings"
 )
 
-var ignoreFlag = false
+var globalState uint8 = 0
 
 // Entry point for the lexer
 func Run(filename string) (*TokenList, aux.FoulError) {
-	ignoreFlag = false
+	globalState = 0
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -48,23 +48,17 @@ func Run(filename string) (*TokenList, aux.FoulError) {
 // Find tokens in line and append them to the tokenList
 func getTokensInLine(line []byte, tokenList *TokenList, transitionTable [][]uint8) string {
 	var word []byte
-	y := 0
+	y := int(globalState)
 
 	for i := 0; i < len(line); i++  {
 		x := getIndexForChar(line[i])
 		state := transitionTable[y][x]
 		y = int(state)
 
-		// Don't append to list if comment starts
-		if ignoreTokens(state) {
-			y = 0
-			if state == constant.S_OPEN_COMMENT_BLOCK {
-				tokenList.Add(NewToken(state, []byte{}))
-			} else if state == constant.S_ASTERISK {
-				i -= 1
-			}
-
-			continue
+		if state == 7 {
+			globalState = state
+		} else {
+			globalState = 0
 		}
 
 		word = append(word, line[i])
@@ -90,30 +84,17 @@ func getTokensInLine(line []byte, tokenList *TokenList, transitionTable [][]uint
 	return ""
 }
 
-// Turn on and off the ignore flag
-func ignoreTokens(state uint8) bool {
-	if state == constant.S_OPEN_COMMENT_BLOCK {
-		ignoreFlag = true
-	} else if state == constant.S_CLOSE_COMMENT_BLOCK {
-		ignoreFlag = false
-	} else if state == constant.S_ASTERISK {
-		//return false
-	} else if state == 6 { // return false if an asterisk char is found. Give a chance to find closing bracket.
-		return false
-	}
-	return ignoreFlag
-}
-
 func getTransitionTable() [][]uint8 {
 	return [][]uint8{
-		{1, 2, constant.S_SUM, constant.S_SUBTRACT, 6, 7, 3, 4, 5, constant.S_SEMICOLON, constant.S_COMMA, constant.S_OPEN_PARENTHESIS, constant.S_CLOSE_PARENTHESIS, constant.S_OPEN_SQR_BRACKET, constant.S_CLOSE_SQR_BRACKET, constant.S_OPEN_CURLY_BRACKET, constant.S_CLOSE_CURLY_BRACKET, 8, constant.D_SPACE, constant.S_ERROR},
+		{1, 2, constant.S_SUM, constant.S_SUBTRACT, constant.S_ASTERISK, 6, 3, 4, 5, constant.S_SEMICOLON, constant.S_COMMA, constant.S_OPEN_PARENTHESIS, constant.S_CLOSE_PARENTHESIS, constant.S_OPEN_SQR_BRACKET, constant.S_CLOSE_SQR_BRACKET, constant.S_OPEN_CURLY_BRACKET, constant.S_CLOSE_CURLY_BRACKET, 9, constant.D_SPACE, constant.S_ERROR},
 		{1, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.H_WORD, constant.S_ERROR},
 		{constant.H_NUMBER, 2, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER, constant.H_NUMBER},
 		{constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS_EQUAL, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_LESS, constant.S_ERROR},
 		{constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE_EQUAL, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_MORE, constant.S_ERROR},
 		{constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_EQUAL, constant.S_ERROR},
-		{constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_CLOSE_COMMENT_BLOCK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ASTERISK, constant.S_ERROR},
-		{constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_OPEN_COMMENT_BLOCK, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_ERROR},
+		{constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, 8, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_FORWARD_SLASH, constant.S_ERROR},
+		{7,7,7,7,8,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7},
+		{7,7,7,7,7,0,7,7,7,7,7,7,7,7,7,7,7,7,7,7},
 		{constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_NOT_EQUAL, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR, constant.S_ERROR},
 	}
 }
@@ -244,7 +225,6 @@ func isRecursiveToken(state uint8) bool {
 	if
 		state == constant.H_WORD ||
 		state == constant.H_NUMBER ||
-		state == constant.S_ASTERISK ||
 		state == constant.S_FORWARD_SLASH ||
 		state == constant.S_LESS ||
 		state == constant.S_MORE ||

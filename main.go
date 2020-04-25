@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	tokenList, err := lexer.Run("file.txt")
+	tokenList, err := lexer.Run("eval_lex_1.txt")
 	if err != nil {
 		//panic(err.ToString())
 		tokenList.Print()

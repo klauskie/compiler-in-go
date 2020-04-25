@@ -137,7 +137,7 @@ func TestGetTokensInLine(t *testing.T) {
 
 	// Comments
 	line = "/* %& UNKNOWN TOKEN-S **/" + " "
-	possibleFutureSize := 2
+	possibleFutureSize := 0
 	tl.Elements = tl.Elements[:0]
 	err = getTokensInLine([]byte(line), &tl, transitionTable)
 	if possibleFutureSize != len(tl.Elements) {
@@ -147,8 +147,8 @@ func TestGetTokensInLine(t *testing.T) {
 	line = "/* int main () {}" + " "
 	tl.Elements = tl.Elements[:0]
 	err = getTokensInLine([]byte(line), &tl, transitionTable)
-	if len(tl.Elements) != 1 {
-		t.Errorf("getTokensInLine; Expected all text to be ignerd and identify 1 token; got %d token detected", len(tl.Elements))
+	if len(tl.Elements) != 0 {
+		t.Errorf("getTokensInLine; Expected all text to be ignered; got %d token detected", len(tl.Elements))
 	}
 
 }

@@ -1,0 +1,36 @@
+/* This is a program with no lexical errors
+and with all the tokens of the &language. */
+
+int x[10];
+int a;
+    
+int fun(int b, int y[]){
+    b = 0;
+    while (b < 10){
+        y[b] = b;
+        b = b + 1;
+    }
+    b = b * 2;
+    if (b == 10){
+        y[b] = 0;
+        y[b-1] = 0;
+    }
+    else{
+        y[0] = 0;
+        b = b */ 2;
+    }
+    return b;
+}/* END of fun() */
+
+void main(void){
+    input a;
+    output fun(a, x);
+    if (x[1] != 0)
+        output a;
+    if (x[2] > 10)
+        output x[2];
+    if (x[3] >= 11)
+        output x[3];
+    if (x[4] <= 9)
+        output x[4];
+}
