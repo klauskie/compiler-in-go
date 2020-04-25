@@ -16,7 +16,8 @@ func (f Foul) ToString() string {
 }
 
 const (
-	UNKNOWN_TOKEN = uint8(1)
+	UNKNOWN_TOKEN uint8 = iota + 1
+	UNEXPECTED_EOF
 )
 
 func NewFoul(t uint8, params ...interface{}) Foul {
@@ -24,6 +25,9 @@ func NewFoul(t uint8, params ...interface{}) Foul {
 	switch t {
 	case UNKNOWN_TOKEN:
 		message = fmt.Sprintf("unknown token [ %s ] at line:  %d", params[1].(string), params[0].(int))
+		break
+	case UNEXPECTED_EOF:
+		message = fmt.Sprintf("unexpected end of file:  %s", params[0].(string))
 		break
 	default:
 		message = "error"

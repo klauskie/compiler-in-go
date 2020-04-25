@@ -42,6 +42,10 @@ func Run(filename string) (*TokenList, aux.FoulError) {
 		log.Fatal(err)
 	}
 
+	if globalState == 7 {
+		return &tokenList, aux.NewFoul(aux.UNEXPECTED_EOF, "/*")
+	}
+
 	return &tokenList, nil
 }
 

@@ -22,6 +22,7 @@ int fun(int b, int y[]){
     return b;
 }/* END of fun() */
 
+/*
 void main(void){
     input a;
     output fun(a, x);
