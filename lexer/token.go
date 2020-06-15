@@ -44,6 +44,18 @@ func (list *TokenList) Print() {
 	}
 }
 
+func (t *Token) IsTerminal() bool {
+	return true
+}
+
+func (t *Token) GetType() uint8 {
+	return t.Type
+}
+
+func (t *Token) GetLabel() string {
+	return getTypeToString(t.GetType())
+}
+
 func (t *Token) ToString() string {
 	return fmt.Sprintf("Type: %s, Word: %s", getTypeToString(t.Type), t.Word)
 }

@@ -4,6 +4,12 @@ import (
 	"../aux/constant"
 )
 
+type ProductionRuleElement interface {
+	IsTerminal() bool
+	GetType() uint8
+	GetLabel() string
+}
+
 type ProductionRule struct {
 	Name string
 	NameID uint8
@@ -11,12 +17,50 @@ type ProductionRule struct {
 	PlusSet []uint8
 }
 
+func (pr ProductionRule) IsTerminal() bool {
+	return false
+}
+
+func (pr ProductionRule) GetType() uint8 {
+	return pr.NameID
+}
+
+func (pr ProductionRule) GetLabel() string {
+	return pr.Name
+}
+
 type GrammarRules struct {
 	RuleList []ProductionRule
 	RuleMap map[uint8] ProductionRule
 }
 
+func initGrammarRules() *GrammarRules {
+	gr := GrammarRules{}
+	gr.RuleMap = make(map[uint8] ProductionRule)
+	gr.setRules()
+	return &gr
+}
+
+func (g *GrammarRules) getRuleByID(id uint8) ProductionRule {
+	return g.RuleMap[id]
+}
+
+func (g *GrammarRules) getLabelByUID(id uint8) string {
+	for i := uint8(0); i >= 89; i++ {
+		if g.RuleMap[i].NameID == id {
+			return g.RuleMap[i].Name
+		}
+	}
+	return ""
+}
+
 func (g *GrammarRules) setRules() {
+	g.RuleMap[0] = ProductionRule{
+		Name:     "end",
+		NameID:   constant.S_ENDLINE,
+		RuleList: []uint8{},
+		PlusSet:  []uint8{},
+	}
 	g.RuleMap[1] = ProductionRule{
 		Name:     "program",
 		NameID:   constant.R_PROGRAM,

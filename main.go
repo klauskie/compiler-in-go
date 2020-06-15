@@ -2,11 +2,16 @@ package main
 
 import (
 	"./lexer"
-	"fmt"
+	"./parser"
 	"log"
 )
 
 func main() {
+	phaseBuilder()
+}
+
+func phaseBuilder() {
+	// Lexical Analysis
 	tokenList, err := lexer.Run("eval_lex_1.txt")
 	if err != nil {
 		//panic(err.ToString())
@@ -17,10 +22,8 @@ func main() {
 	symbolTable := lexer.NewSymbolTable()
 	symbolTable.Fill(tokenList)
 
-	fmt.Println("---- TOKEN LIST -----")
-	tokenList.Print()
-	fmt.Println("---- SYMBOL TABLE -----")
-	symbolTable.Print()
+	// Syntax Analysis
+	parser.RunParser(tokenList)
 }
 
 
