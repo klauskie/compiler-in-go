@@ -33,13 +33,13 @@ func NewFoul(t uint8, params ...interface{}) Foul {
 		message = fmt.Sprintf("error: unexpected end of file:  %s", params[0].(string))
 		break
 	case UNEXPECTED_TOKEN:
-		message = fmt.Sprintf("error: expected '%s' before '%s' token", params[0].(string), params[1].(string))
+		message = fmt.Sprintf("error: expected '%s' before '%s' token at line %d", params[0].(string), params[1].(string), params[2].(int))
 		break
 	case INVALID_EXPRESSION:
-		message = fmt.Sprintf("error: invalid expression before '%s' token", params[0].(string))
+		message = fmt.Sprintf("error: invalid expression before '%s' token at line %d", params[0].(string), params[1].(int))
 		break
 	case GENERIC_ERROR:
-		message = fmt.Sprintf("error: syntax error")
+		message = fmt.Sprintf("error: syntax error at line %d", params[0].(int))
 		break
 	default:
 		message = "error"

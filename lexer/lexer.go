@@ -88,6 +88,39 @@ func getTokensInLine(line []byte, tokenList *TokenList, transitionTable [][]uint
 	return ""
 }
 
+func GetFileLineForToken(filename string, target int) int {
+	globalState = 0
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	tokenList := TokenList{[]Token{}}
+	transitionTable := getTransitionTable()
+	scanner := bufio.NewScanner(file)
+
+	counted := 0
+
+	for i := 1; scanner.Scan(); i++ {
+		line := scanner.Bytes()
+		line = append(line, ' ')
+		if tokenError := getTokensInLine(line, &tokenList, transitionTable); len(tokenError) > 0 {
+			return -1
+		}
+		if target >= counted && target <= len(tokenList.Elements) {
+			return i
+		}
+		counted = len(tokenList.Elements)
+	}
+	return -1
+}
+
 func getTransitionTable() [][]uint8 {
 	return [][]uint8{
 		{1, 2, constant.S_SUM, constant.S_SUBTRACT, constant.S_ASTERISK, 6, 3, 4, 5, constant.S_SEMICOLON, constant.S_COMMA, constant.S_OPEN_PARENTHESIS, constant.S_CLOSE_PARENTHESIS, constant.S_OPEN_SQR_BRACKET, constant.S_CLOSE_SQR_BRACKET, constant.S_OPEN_CURLY_BRACKET, constant.S_CLOSE_CURLY_BRACKET, 9, constant.D_SPACE, constant.S_ERROR},

@@ -12,8 +12,10 @@ var tokens []lexer.Token
 var tokenIndex int = 0
 var grammarRules GrammarRules
 var tableMap map[uint8][]int
+var filename string
 
-func RunParser(tokenList *lexer.TokenList) aux.FoulError {
+func RunParser(sourceFileName string, tokenList *lexer.TokenList) aux.FoulError {
+	filename = sourceFileName
 	return initialSetup(tokenList)
 }
 
@@ -48,13 +50,13 @@ func executeParse(tkStack *RuleStack) aux.FoulError {
 			tkStack.pop()
 			tokenType, tErr = nextToken()
 			if tErr != nil {
-				fmt.Println("Error nextToken")
+				// fmt.Println("Error nextToken")
 				break
 			}
 		} else if tkStack.top() < 60 {
-			return aux.NewFoul(aux.UNEXPECTED_TOKEN, lexer.GetTypeToString(tkStack.top()), lexer.GetTypeToString(tokenType))
+			return aux.NewFoul(aux.UNEXPECTED_TOKEN, lexer.GetTypeToString(tkStack.top()), tokens[tokenIndex-1].GetLabel(), lexer.GetFileLineForToken(filename, tokenIndex))
 		} else if tableMap[tkStack.top()][GetTokenColumn(tokenType)] == 0 {
-			return aux.NewFoul(aux.INVALID_EXPRESSION, lexer.GetTypeToString(tokenType))
+			return aux.NewFoul(aux.INVALID_EXPRESSION, tokens[tokenIndex-1].GetLabel(),  lexer.GetFileLineForToken(filename, tokenIndex))
 		} else if pRule := tableMap[tkStack.top()][GetTokenColumn(tokenType)]; pRule > 0 {
 			tkStack.pop()
 			pushRulesToStack(tkStack, grammarRules.getRuleByID(uint8(pRule)))
@@ -64,7 +66,7 @@ func executeParse(tkStack *RuleStack) aux.FoulError {
 	if tkStack.top() == constant.S_ENDLINE && tokenType == constant.S_ENDLINE {
 		return nil
 	}
-	return aux.NewFoul(aux.GENERIC_ERROR)
+	return aux.NewFoul(aux.GENERIC_ERROR, lexer.GetFileLineForToken(filename, tokenIndex))
 
 }
 

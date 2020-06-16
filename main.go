@@ -8,12 +8,12 @@ import (
 
 func main() {
 	fmt.Println()
-	phaseBuilder()
+	phaseBuilder("eval_lex_1.txt")
 }
 
-func phaseBuilder() {
+func phaseBuilder(filename string) {
 	// Lexical Analysis
-	tokenList, err := lexer.Run("eval_lex_1.txt")
+	tokenList, err := lexer.Run(filename)
 	if err != nil {
 		//panic(err.ToString())
 		//tokenList.Print()
@@ -26,7 +26,7 @@ func phaseBuilder() {
 	symbolTable.Fill(tokenList)
 
 	// Syntax Analysis
-	parserError := parser.RunParser(tokenList)
+	parserError := parser.RunParser(filename, tokenList)
 	if parserError != nil {
 		fmt.Println(parserError.ToString())
 		//log.Fatal(parserError.ToString())

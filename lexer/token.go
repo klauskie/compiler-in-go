@@ -48,6 +48,13 @@ func (t *Token) ToString() string {
 	return fmt.Sprintf("Type: %s, Word: %s", GetTypeToString(t.Type), t.Word)
 }
 
+func (t *Token) GetLabel() string {
+	if len(t.Word) == 0 {
+		return GetTypeToString(t.Type)
+	}
+	return t.Word
+}
+
 func GetTypeToString(t uint8) string {
 	var stype string
 	switch t {
