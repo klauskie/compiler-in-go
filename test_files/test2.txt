@@ -1,0 +1,10 @@
+/**/
+
+int sum(int one, int two) {
+    if (one >= 0 && two >= 0) {
+        output one + two;
+    } else {
+        output 0;
+    }
+    return one + two;
+}

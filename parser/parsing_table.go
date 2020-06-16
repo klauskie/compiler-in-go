@@ -3,6 +3,7 @@ package parser
 import (
 	"../aux/constant"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 func FillParsingTable(file string) (map[uint8][]int, error) {
 	f, err := os.Open(file)
 	if err != nil {
+		fmt.Println("Parsing Table file not found")
 		return nil, err
 	}
 	defer f.Close()

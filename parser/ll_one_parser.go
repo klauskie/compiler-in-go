@@ -19,6 +19,14 @@ func RunParser(sourceFileName string, tokenList *lexer.TokenList) aux.FoulError 
 	return initialSetup(tokenList)
 }
 
+func cleanVariables() {
+	tokens = []lexer.Token{}
+	tokenIndex = 0
+	grammarRules = GrammarRules{}
+	tableMap = nil
+	filename = ""
+}
+
 func initialSetup(tokenList *lexer.TokenList) aux.FoulError {
 	tokens = tokenList.Elements
 	tokens = append(tokens, lexer.Token{
@@ -31,6 +39,8 @@ func initialSetup(tokenList *lexer.TokenList) aux.FoulError {
 
 	tkStack.push(constant.S_ENDLINE)
 	tkStack.push(constant.R_PROGRAM)
+
+	defer cleanVariables()
 
 	return executeParse(&tkStack)
 }

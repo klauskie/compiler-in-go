@@ -16,7 +16,7 @@ func Run(filename string) (*TokenList, aux.FoulError) {
 	globalState = 0
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("LEXER: Input file not found... ", err)
 	}
 	defer func() {
 		err := file.Close()
@@ -92,7 +92,7 @@ func GetFileLineForToken(filename string, target int) int {
 	globalState = 0
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("LEXER: Input file not found... ", err)
 	}
 	defer func() {
 		err := file.Close()
