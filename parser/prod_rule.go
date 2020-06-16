@@ -16,7 +16,33 @@ type GrammarRules struct {
 	RuleMap map[uint8] ProductionRule
 }
 
+func initGrammarRules() *GrammarRules {
+	gr := GrammarRules{}
+	gr.RuleMap = make(map[uint8] ProductionRule)
+	gr.setRules()
+	return &gr
+}
+
+func (g *GrammarRules) getRuleByID(id uint8) ProductionRule {
+	return g.RuleMap[id]
+}
+
+func (g *GrammarRules) getLabelByUID(id uint8) string {
+	for i := uint8(0); i >= 89; i++ {
+		if g.RuleMap[i].NameID == id {
+			return g.RuleMap[i].Name
+		}
+	}
+	return ""
+}
+
 func (g *GrammarRules) setRules() {
+	g.RuleMap[0] = ProductionRule{
+		Name:     "end",
+		NameID:   constant.S_ENDLINE,
+		RuleList: []uint8{},
+		PlusSet:  []uint8{},
+	}
 	g.RuleMap[1] = ProductionRule{
 		Name:     "program",
 		NameID:   constant.R_PROGRAM,
@@ -158,7 +184,7 @@ func (g *GrammarRules) setRules() {
 	g.RuleMap[24] = ProductionRule{
 		Name:     "local_declarations",
 		NameID:   constant.R_LOCAL_DECLARATIONS,
-		RuleList: []uint8{constant.K_INT_ID, constant.H_WORD, constant.R_VAR_DECLARATION_DECORATION, constant.S_COMMA, constant.R_LOCAL_DECLARATIONS},
+		RuleList: []uint8{constant.K_INT_ID, constant.H_WORD, constant.R_VAR_DECLARATION_DECORATION, constant.S_SEMICOLON, constant.R_LOCAL_DECLARATIONS},
 		PlusSet:  []uint8{constant.K_INT_ID},
 	}
 	g.RuleMap[25] = ProductionRule{
@@ -182,7 +208,7 @@ func (g *GrammarRules) setRules() {
 	g.RuleMap[28] = ProductionRule{
 		Name:     "statement_list_typed",
 		NameID:   constant.R_STATEMENT_LIST_TYPED,
-		RuleList: []uint8{constant.R_STATEMENT_VOID, constant.R_STATEMENT_LIST_VOID},
+		RuleList: []uint8{constant.R_STATEMENT_TYPED, constant.R_STATEMENT_LIST_TYPED},
 		PlusSet:  []uint8{constant.S_OPEN_CURLY_BRACKET, constant.K_IF_ID, constant.K_WHILE_ID, constant.K_RETURN_ID, constant.H_WORD, constant.K_INPUT_ID, constant.K_OUTPUT_ID},
 	}
 	g.RuleMap[29] = ProductionRule{
@@ -356,7 +382,7 @@ func (g *GrammarRules) setRules() {
 	g.RuleMap[57] = ProductionRule{
 		Name:     "output_stmt",
 		NameID:   constant.R_OUTPUT_STMT,
-		RuleList: []uint8{constant.K_OUTPUT_ID, constant.H_WORD, constant.R_EXPRESSION, constant.S_SEMICOLON},
+		RuleList: []uint8{constant.K_OUTPUT_ID, constant.R_EXPRESSION, constant.S_SEMICOLON},
 		PlusSet:  []uint8{constant.K_OUTPUT_ID},
 	}
 	g.RuleMap[58] = ProductionRule{
@@ -536,7 +562,7 @@ func (g *GrammarRules) setRules() {
 	g.RuleMap[87] = ProductionRule{
 		Name:     "args_list",
 		NameID:   constant.R_ARGS_LIST,
-		RuleList: []uint8{constant.R_ARITHMETIC_EXPRESSION, constant.R_ARGS_LIST},
+		RuleList: []uint8{constant.R_ARITHMETIC_EXPRESSION, constant.R_ARGS_LIST_AUX},
 		PlusSet:  []uint8{constant.S_OPEN_PARENTHESIS, constant.H_NUMBER, constant.H_WORD},
 	}
 	g.RuleMap[88] = ProductionRule{

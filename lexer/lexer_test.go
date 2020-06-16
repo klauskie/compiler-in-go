@@ -19,67 +19,67 @@ func TestRun(t *testing.T) {
 		switch i {
 		case 0:
 			if token.Type != constant.K_INT_ID {
-				t.Errorf("Run; Expected an INT TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an INT TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 1:
 			if token.Type != constant.H_WORD {
-				t.Errorf("Run; Expected a WORD TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected a WORD TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 2:
 			if token.Type != constant.S_OPEN_PARENTHESIS {
-				t.Errorf("Run; Expected an OPEN PARENTHESIS TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an OPEN PARENTHESIS TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 3:
 			if token.Type != constant.S_CLOSE_PARENTHESIS {
-				t.Errorf("Run; Expected a CLOSE PARENTHESIS TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected a CLOSE PARENTHESIS TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 4:
 			if token.Type != constant.S_OPEN_CURLY_BRACKET {
-				t.Errorf("Run; Expected an OPEN CURLY BRACKET TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an OPEN CURLY BRACKET TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 5:
 			if token.Type != constant.K_OUTPUT_ID {
-				t.Errorf("Run; Expected an OUTPUT TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an OUTPUT TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 6:
 			if token.Type != constant.S_OPEN_SQR_BRACKET {
-				t.Errorf("Run; Expected an OPEN SQUARE BRACKET TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an OPEN SQUARE BRACKET TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 7:
 			if token.Type != constant.H_NUMBER {
-				t.Errorf("Run; Expected a NUMBER TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected a NUMBER TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 8:
 			if token.Type != constant.S_ASTERISK {
-				t.Errorf("Run; Expected an ASTERISK TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an ASTERISK TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 9:
 			if token.Type != constant.H_WORD {
-				t.Errorf("Run; Expected a WORD TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected a WORD TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 10:
 			if token.Type != constant.S_CLOSE_SQR_BRACKET {
-				t.Errorf("Run; Expected a CLOSE SQUARE BRACKET TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected a CLOSE SQUARE BRACKET TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 11:
 			if token.Type != constant.K_INPUT_ID {
-				t.Errorf("Run; Expected an INPUT TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an INPUT TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		case 12:
 			if token.Type != constant.S_OPEN_PARENTHESIS {
-				t.Errorf("Run; Expected an OPEN PARENTHESIS TYPE; got %s", getTypeToString(token.Type))
+				t.Errorf("Run; Expected an OPEN PARENTHESIS TYPE; got %s", GetTypeToString(token.Type))
 			}
 			break
 		}
@@ -106,16 +106,16 @@ func TestGetTokensInLine(t *testing.T) {
 		t.Errorf("getTokensInLine; Expected 4 tokens; got %d", len(tl.Elements))
 	}
 	if tl.Elements[0].Type != constant.H_NUMBER {
-		t.Errorf("getTokensInLine; Expected a NUMBER token; got %s", getTypeToString(tl.Elements[0].Type))
+		t.Errorf("getTokensInLine; Expected a NUMBER token; got %s", GetTypeToString(tl.Elements[0].Type))
 	}
 	if tl.Elements[1].Type != constant.S_SUM {
-		t.Errorf("getTokensInLine; Expected a SUM token; got %s", getTypeToString(tl.Elements[1].Type))
+		t.Errorf("getTokensInLine; Expected a SUM token; got %s", GetTypeToString(tl.Elements[1].Type))
 	}
 	if tl.Elements[2].Type != constant.H_WORD {
-		t.Errorf("getTokensInLine; Expected a WORD token; got %s", getTypeToString(tl.Elements[2].Type))
+		t.Errorf("getTokensInLine; Expected a WORD token; got %s", GetTypeToString(tl.Elements[2].Type))
 	}
 	if tl.Elements[3].Type != constant.K_IF_ID {
-		t.Errorf("getTokensInLine; Expected an IF token; got %s", getTypeToString(tl.Elements[3].Type))
+		t.Errorf("getTokensInLine; Expected an IF token; got %s", GetTypeToString(tl.Elements[3].Type))
 	}
 
 	line = "\n" + " "

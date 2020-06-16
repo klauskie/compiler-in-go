@@ -45,10 +45,17 @@ func (list *TokenList) Print() {
 }
 
 func (t *Token) ToString() string {
-	return fmt.Sprintf("Type: %s, Word: %s", getTypeToString(t.Type), t.Word)
+	return fmt.Sprintf("Type: %s, Word: %s", GetTypeToString(t.Type), t.Word)
 }
 
-func getTypeToString(t uint8) string {
+func (t *Token) GetLabel() string {
+	if len(t.Word) == 0 {
+		return GetTypeToString(t.Type)
+	}
+	return t.Word
+}
+
+func GetTypeToString(t uint8) string {
 	var stype string
 	switch t {
 	case constant.S_SUM:
