@@ -8,41 +8,8 @@ import (
 	"strconv"
 )
 
-func FillParsingTable(file string) (map[string][]int, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
 
-	csvr := csv.NewReader(f)
-
-	tableMap := make(map[string][]int)
-	for {
-		row, err := csvr.Read()
-		if err != nil {
-			if err == io.EOF {
-				err = nil
-			}
-			return tableMap, err
-		}
-
-		var tempList []int
-
-		for _, num := range row[1:] {
-			if numInt, err := strconv.Atoi(num); err == nil {
-				tempList = append(tempList, numInt)
-			}
-			if len(num) == 0 {
-				tempList = append(tempList, 0)
-			}
-		}
-
-		tableMap[row[0]] = tempList
-	}
-}
-
-func FillParsingTable2(file string) (map[uint8][]int, error) {
+func FillParsingTable(file string) (map[uint8][]int, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err

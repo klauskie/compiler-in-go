@@ -3,10 +3,11 @@ package main
 import (
 	"./lexer"
 	"./parser"
-	"log"
+	"fmt"
 )
 
 func main() {
+	fmt.Println()
 	phaseBuilder()
 }
 
@@ -15,15 +16,22 @@ func phaseBuilder() {
 	tokenList, err := lexer.Run("eval_lex_1.txt")
 	if err != nil {
 		//panic(err.ToString())
-		tokenList.Print()
-		log.Fatal(err.ToString())
+		//tokenList.Print()
+		fmt.Println(err.ToString())
+		//log.Fatal(err.ToString())
+		return
 	}
 
 	symbolTable := lexer.NewSymbolTable()
 	symbolTable.Fill(tokenList)
 
 	// Syntax Analysis
-	parser.RunParser(tokenList)
+	parserError := parser.RunParser(tokenList)
+	if parserError != nil {
+		fmt.Println(parserError.ToString())
+		//log.Fatal(parserError.ToString())
+		return
+	}
 }
 
 
