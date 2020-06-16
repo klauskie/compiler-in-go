@@ -42,6 +42,42 @@ func FillParsingTable(file string) (map[string][]int, error) {
 	}
 }
 
+func FillParsingTable2(file string) (map[uint8][]int, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	csvr := csv.NewReader(f)
+
+	tableMap := make(map[uint8][]int)
+	for {
+		row, err := csvr.Read()
+		if err != nil {
+			if err == io.EOF {
+				err = nil
+			}
+			return tableMap, err
+		}
+
+		var tempList []int
+
+		for _, num := range row[1:] {
+			if numInt, err := strconv.Atoi(num); err == nil {
+				tempList = append(tempList, numInt)
+			}
+			if len(num) == 0 {
+				tempList = append(tempList, 0)
+			}
+		}
+
+		if numInt, err := strconv.Atoi(row[0]); err == nil {
+			tableMap[uint8(numInt)] = tempList
+		}
+	}
+}
+
 // ID	NUM	IF	ELSE	INT	VOID	RETURN	WHILE	INPUT	OUTPUT	+	-	*	/	<	<=	>	>=	==	!=	=	;	,	(	)	[	]	{	}	$
 
 func GetTokenColumn(tokenID uint8) int {

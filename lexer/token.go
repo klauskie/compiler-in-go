@@ -44,23 +44,11 @@ func (list *TokenList) Print() {
 	}
 }
 
-func (t *Token) IsTerminal() bool {
-	return true
-}
-
-func (t *Token) GetType() uint8 {
-	return t.Type
-}
-
-func (t *Token) GetLabel() string {
-	return getTypeToString(t.GetType())
-}
-
 func (t *Token) ToString() string {
-	return fmt.Sprintf("Type: %s, Word: %s", getTypeToString(t.Type), t.Word)
+	return fmt.Sprintf("Type: %s, Word: %s", GetTypeToString(t.Type), t.Word)
 }
 
-func getTypeToString(t uint8) string {
+func GetTypeToString(t uint8) string {
 	var stype string
 	switch t {
 	case constant.S_SUM:
