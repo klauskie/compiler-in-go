@@ -46,8 +46,8 @@ func (g *GrammarRules) setRules() {
 	g.RuleMap[1] = ProductionRule{
 		Name:     "program",
 		NameID:   constant.R_PROGRAM,
-		RuleList: []uint8{constant.R_DECLARATION_LIST},
-		PlusSet:  []uint8{constant.K_INT_ID, constant.K_VOID_ID, constant.S_ENDLINE},
+		RuleList: []uint8{constant.R_DECLARATION, constant.R_DECLARATION_LIST},
+		PlusSet:  []uint8{constant.K_INT_ID, constant.K_VOID_ID},
 	}
 	g.RuleMap[2] = ProductionRule{
 		Name:     "declaration_list",

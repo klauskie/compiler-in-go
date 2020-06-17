@@ -8,17 +8,20 @@ import (
 	"fmt"
 )
 
+// Global variables
 var tokens []lexer.Token
 var tokenIndex int = 0
 var grammarRules GrammarRules
 var tableMap map[uint8][]int
 var filename string
 
+// Parser entry point
 func RunParser(sourceFileName string, tokenList *lexer.TokenList) aux.FoulError {
 	filename = sourceFileName
 	return initialSetup(tokenList)
 }
 
+// Return parser state to initial state
 func cleanVariables() {
 	tokens = []lexer.Token{}
 	tokenIndex = 0
@@ -27,14 +30,20 @@ func cleanVariables() {
 	filename = ""
 }
 
+// Setup parser
 func initialSetup(tokenList *lexer.TokenList) aux.FoulError {
+	// Store token list
+	// Add $ Token to the end of the token list
 	tokens = tokenList.Elements
 	tokens = append(tokens, lexer.Token{
 		Type: constant.S_ENDLINE,
 		Word: "$",
 	})
+	// Get production rules
 	grammarRules = *initGrammarRules()
+	// Get parsing table from file
 	tableMap, _ = FillParsingTable("parsing_table_two.csv")
+	// Init Stack
 	tkStack := RuleStack{}
 
 	tkStack.push(constant.S_ENDLINE)
@@ -42,9 +51,11 @@ func initialSetup(tokenList *lexer.TokenList) aux.FoulError {
 
 	defer cleanVariables()
 
+	// Run parser
 	return executeParse(&tkStack)
 }
 
+// LL1 Parser
 func executeParse(tkStack *RuleStack) aux.FoulError {
 	tokenType, tErr := nextToken()
 
@@ -60,14 +71,16 @@ func executeParse(tkStack *RuleStack) aux.FoulError {
 			tkStack.pop()
 			tokenType, tErr = nextToken()
 			if tErr != nil {
-				// fmt.Println("Error nextToken")
 				break
 			}
 		} else if tkStack.top() < 60 {
+			// Check if there is a token mismatch
 			return aux.NewFoul(aux.UNEXPECTED_TOKEN, lexer.GetTypeToString(tkStack.top()), tokens[tokenIndex-1].GetLabel(), lexer.GetFileLineForToken(filename, tokenIndex))
 		} else if tableMap[tkStack.top()][GetTokenColumn(tokenType)] == 0 {
+			// Check if input can be mapped to the parsing table
 			return aux.NewFoul(aux.INVALID_EXPRESSION, tokens[tokenIndex-1].GetLabel(),  lexer.GetFileLineForToken(filename, tokenIndex))
 		} else if pRule := tableMap[tkStack.top()][GetTokenColumn(tokenType)]; pRule > 0 {
+			// Fill the stack with the elements in the production rule.
 			tkStack.pop()
 			pushRulesToStack(tkStack, grammarRules.getRuleByID(uint8(pRule)))
 		}
@@ -80,6 +93,7 @@ func executeParse(tkStack *RuleStack) aux.FoulError {
 
 }
 
+// Push to stack in inverse order
 func pushRulesToStack(tkStack *RuleStack, rule ProductionRule) {
 	//fmt.Printf("Push to stack! FATHER: %s\n", rule.Name)
 	size := len(rule.RuleList)
@@ -90,6 +104,7 @@ func pushRulesToStack(tkStack *RuleStack, rule ProductionRule) {
 	//fmt.Println()
 }
 
+// Return next token in the token list
 func nextToken() (uint8, error) {
 	if tokenIndex > len(tokens) {
 		return 0, errors.New("index out of range")
